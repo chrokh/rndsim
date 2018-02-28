@@ -58,12 +58,10 @@ instance Samplable Int where
   -- Easing and interpolation
 ----------------------------------------------
 
--- The property of a stage (e.g. cost) is not, in real life, always uniformly
--- distributed across the time of a stage. For these cases we use easing
--- functions to impose functions that are presumably more characteristic. Such
--- as sigmoids and exponentials. Easing functions produce multipliers when
--- given values in the range [0, 1] The non-trivial easing functions are
--- sourced from: https://gist.github.com/gre/1650294
+-- Easing functions produce multipliers in the range [0, 1] when given values
+-- in the range [0, 1].  The output can be thought of as the 'eased' version of
+-- the input.  The non-trivial easing functions are sourced from:
+-- https://gist.github.com/gre/1650294
 
 type Easing = Double -> Double
 always :: Easing; always x = 1
@@ -74,16 +72,11 @@ quad   :: Easing; quad   x = if x < 0.5
                                 else -1 + (4 - 2 * x) * x
 
 
--- Interpolating between two values can be done in many different ways.
--- interpolate is a function that expects an easing function, two y-values,
--- and a delta x to interpolate over. When given an x, the function uses
--- the previous information to compute the interpolated y-value at x
--- while employing the easing function.
+-- When given an easing function, a delta x, and the two y-values at min(dx)
+-- and max(dx), interpolate yields a numeric function that can be graphed on a
+-- cartesian plane. Example:
 --
--- Example:
--- interpolate linear 100 10 5 2
---   = (linear 2/5) * (100-10) + 10
---   = 190
+-- interpolate linear 100 10 5 2 = (linear 2/5) * (100-10) + 10 = 190
 
 interpolate :: Easing -> Int -> Double -> Double -> Int -> Double
 interpolate f dx y2 y1 x = let _x = fromIntegral x
@@ -91,10 +84,12 @@ interpolate f dx y2 y1 x = let _x = fromIntegral x
                             in (f (_x/_dx)) * (y2-y1) + y1
 
 
--- A curve can have some particular shape.
+-- Shapes describe different kinds of curves.
+
 data Shape = Lin | Con | Sig | Exp | Log
 
--- Shapes correspond to easing functions.
+-- All shapes have a corresponding easing function.
+
 easer :: Shape -> (Double -> Double)
 easer Lin = linear
 easer Con = always
