@@ -55,7 +55,7 @@ instance Samplable Int where
 
 
 ----------------------------------------------
-  -- Easings and curvatures
+  -- Easing and interpolation
 ----------------------------------------------
 
 -- The property of a stage (e.g. cost) is not, in real life, always uniformly
@@ -103,6 +103,14 @@ easer _   = \x -> x -- TODO
 
 
 
+
+
+
+
+
+----------------------------------------------
+  -- Curves
+----------------------------------------------
 
 -- The way a property of a stage is distributed over the length of the stage is
 -- described by a curve. A curve can either be described as the curve with some
