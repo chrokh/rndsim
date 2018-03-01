@@ -108,27 +108,65 @@ easer _   = \x -> x -- TODO
 ----------------------------------------------
 
 -- The way a property of a stage is distributed over the length of the stage is
--- described by a curve. A curve can either be described as the curve with some
--- shape that ends at a target goal, or a curve with some shape that covers
--- some area.
-data Curve = IdCurve
+-- described by a curve. A curve is a partial description of a curve that can
+-- be used to produce a function that maps from x to y.
+
+data Curve = PntsCurve Shape Double Double
            | GoalCurve Shape Double
            | AreaCurve Shape Double
+           | IdCurve
 
 
--- Given some curve, a starting y, some delta x, and some x, we can produce a
--- corresponding y.
-target :: Curve -> Double -> Int -> Int -> Double
-target IdCurve y1 _ _ = y1
-target (GoalCurve shape y2) y1 dx x = interpolate (easer shape) dx y2 y1 x
-target (AreaCurve shape ar) y1 dx x = let y2 = findY2 ar shape y1 dx
-                                       in interpolate (easer shape) dx y2 y1 x
+-- To map from a given x to some y, using a curve, we need to supply some
+-- starting y (y1) and some delta x (dx) over which we should solve for any
+-- potentially remaining properties of the curve.
+
+fx :: Curve -> Double -> Int -> Int -> Double
+fx curve y1' dx x = let y1''   = y1 curve y1' dx
+                        y2''   = y2 curve y1' dx
+                        easing = easer $ shape curve
+                     in interpolate easing dx y2'' y1'' x
 
 
--- Using integration we can find y2 (target y) of a curve with some area, some
--- shape, some delta x (time span), and some y1 (starting point).
-findY2 :: Double -> Shape -> Double -> Int -> Double
-findY2 area shape y1 dx = area -- TODO: fake implementation.
+-- We can trivially extract the shape of a curve.
+
+shape :: Curve -> Shape
+shape IdCurve           = Lin
+shape (GoalCurve s _)   = s
+shape (AreaCurve s _)   = s
+shape (PntsCurve s _ _) = s
+
+
+-- Using integration we can find y2 (target y) of a curve if given some y1
+-- (starting point) and some delta x (time span).
+
+y2 :: Curve -> Double -> Int -> Double
+y2 (IdCurve) y1 _         = y1
+y2 (AreaCurve _ area) _ _ = area / 2 -- TODO: Temp. Use integrals.
+y2 (GoalCurve _ y2) _ _   = y2
+y2 (PntsCurve _ _ y2) _ _ = y2
+
+
+-- We can also ask a curve for it's y1 when given some previous y1 (starting
+-- point) and some delta x. Note that all curves except a curve with an already
+-- known y1 returns the supplied y1.
+
+y1 :: Curve -> Double -> Int -> Double
+y1 (PntsCurve _ y1 _) _ _ = y1
+y1 _ y1 _                 = y1
+
+
+-- Conversely, we can also find the area of a curve if given some y1 and some
+-- delta x. The word 'area' is used indicatively and not precisely. The area of
+-- a series of a probability curve is the total probability of successfully
+-- performing each step of the curve. For probability, the area is in other
+-- words the product, while for other properties it is the sum.
+
+area :: Curve -> Double -> Int -> Double
+area (IdCurve) y1 dx        = y1 * (fromIntegral dx) -- optimization
+area (AreaCurve _ area) _ _ = area
+area shape y1 dx            = foldr (+) 0 (map (fx shape y1 dx) [0..(dx-1)])
+                            -- TODO: + should be * for prob.
 
 
 
@@ -157,7 +195,7 @@ base (CompCurve o c next) = base next
 -- for all the curves in the composite and folds them into a final number using
 -- their respective operators.
 unwrap :: CompCurve -> Int -> Double -> Int -> Double
-unwrap (BaseCurve curve) dx y1 x          = target curve y1 dx x
+unwrap (BaseCurve curve) dx y1 x          = fx curve y1 dx x
 unwrap (CompCurve op curve next) dx y1 x  = (unwrap next dx y1 x) `op` (unwrap (BaseCurve curve) dx y1 x)
 
 
