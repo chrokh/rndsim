@@ -2,10 +2,6 @@
 {-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
 
 
-
-
-
-
 ----------------------------------------------
   -- Distributions and sampling
 ----------------------------------------------
@@ -46,11 +42,6 @@ instance Samplable Int where
   sample (Estimate x) seed             = (x, seed)   -- TODO
   sample (Uniform min max) seed        = (min, seed) -- TODO
   sample (Triangular min mid max) seed = (min, seed) -- TODO
-
-
-
-
-
 
 
 
@@ -95,11 +86,6 @@ easer Lin = linear
 easer Con = always
 easer Sig = quad
 easer _   = \x -> x -- TODO
-
-
-
-
-
 
 
 
@@ -169,39 +155,37 @@ area shape y1 dx            = foldr (+) 0 (map (fx shape y1 dx) [0..(dx-1)])
                             -- TODO: + should be * for prob.
 
 
-
-
 -- Interventions combines curves with curves using operators and produce
 -- composite curves. A composite curve is either just a curve, or a recursive
 -- composition of an operator, a curve, and a composite curve.
+
 data CompCurve = BaseCurve Curve
                | CompCurve Operator Curve CompCurve
 
 
 -- Any operator that can operate on a pair of doubles and produce a double is
 -- an operator that can be used to alter stage properties.
+
 type Operator = Double -> Double -> Double
 
 
 -- We can perform multiple operations on composite curves. base is a simple
 -- function that takes a composite curve, strips all of the wrappers and
 -- returns the base curve at the bottom.
+
 base :: CompCurve -> Curve
 base (BaseCurve c)        = c
 base (CompCurve o c next) = base next
+
 
 -- A more complex composite curve operation is unwrap. When given a composite
 -- curve, some delta x, some starting y, and some x, it computes f(x), i.e. y,
 -- for all the curves in the composite and folds them into a final number using
 -- their respective operators.
+
 unwrap :: CompCurve -> Int -> Double -> Int -> Double
 unwrap (BaseCurve curve) dx y1 x          = fx curve y1 dx x
 unwrap (CompCurve op curve next) dx y1 x  = (unwrap next dx y1 x) `op` (unwrap (BaseCurve curve) dx y1 x)
-
-
-
-
-
 
 
 
@@ -211,12 +195,14 @@ unwrap (CompCurve op curve next) dx y1 x  = (unwrap next dx y1 x) `op` (unwrap (
 
 -- A project is a series of activities that need to be performed for the
 -- project to be completed.
+
 type Proj = [Activity]
 
 -- An activity is what is commonly described as a stage. An activity spans some
 -- time and entails some cost, some revenues, and some probability of success.
 -- These properties are distributed over the course of the stage as described
 -- by their respective composite curves.
+
 data Activity = Activity { time :: Int
                          , cash :: CompCurve
                          , cost :: CompCurve
@@ -228,6 +214,7 @@ data Activity = Activity { time :: Int
 -- specifies which property we are looking for, a default value (which can be
 -- thought of as the previous value in the recursion or the accumulator in a
 -- fold), a project (which is a list of activities), and finally some x.
+
 prop :: (Activity -> CompCurve) -> Double -> Proj -> Int -> Double
 prop _ prev [] _  = prev
 prop get prev (hd:tl) x
@@ -238,12 +225,10 @@ prop get prev (hd:tl) x
 
 -- prop is probably more easily understood through the following simplifying
 -- aliases that help us extract particular properties from projects.
+
 cashAt = prop cash 0 :: Proj -> Int -> Double
 costAt = prop cost 0 :: Proj -> Int -> Double
 probAt = prop prob 1 :: Proj -> Int -> Double
-
-
-
 
 
 
@@ -265,7 +250,6 @@ data StochasticActivity = StochasticActivity { timeDist :: Distribution Int
 data StochasticCurve = StochasticIdCurve
                      | StochasticGoalCurve Shape (Distribution Double)
                      | StochasticAreaCurve Shape (Distribution Double)
-
 
 
 -- When passing a StochasticProject and a seed to the function sampleProject we
@@ -308,11 +292,9 @@ sampleCurve (StochasticAreaCurve shape dist) seed =
 
 
 
-
-
---
--- MAIN
---
+----------------------------------------------
+  -- Main
+----------------------------------------------
 
 main = putStrLn ("Hello world")
 
