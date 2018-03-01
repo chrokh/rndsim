@@ -155,27 +155,36 @@ area shape y1 dx            = foldr (+) 0 (map (fx shape y1 dx) [0..(dx-1)])
                             -- TODO: + should be * for prob.
 
 
--- Interventions combines curves with curves using operators and produce
--- composite curves. A composite curve is either just a curve, or a recursive
--- composition of an operator, a curve, and a composite curve.
 
-data CompCurve = BaseCurve Curve
-               | CompCurve Operator Curve CompCurve
+----------------------------------------------
+  -- Decorators, Operators, and Composite Curves
+----------------------------------------------
+
+-- A Decorator of a and b is either just an a or a b wrapped around a decorator
+-- of a and b.
+data Decorator a b = Base a | Wrap b (Decorator a b)
 
 
--- Any operator that can operate on a pair of doubles and produce a double is
--- an operator that can be used to alter stage properties.
+-- An Operator is a function that takes two doubles and produces a double.
+-- Operators are used to alter stage properties. Addition, subtraction,
+-- multiplication, and division are trivial examples of valid operators.
 
 type Operator = Double -> Double -> Double
+
+
+-- Curves can be combined using Operators. To model potentially infinitely
+-- nested curves and operators, we use decorators.
+
+type CompositeCurve = Decorator Curve (Operator, Curve)
 
 
 -- We can perform multiple operations on composite curves. base is a simple
 -- function that takes a composite curve, strips all of the wrappers and
 -- returns the base curve at the bottom.
 
-base :: CompCurve -> Curve
-base (BaseCurve c)        = c
-base (CompCurve o c next) = base next
+base :: CompositeCurve -> Curve
+base (Base c)         = c
+base (Wrap wrap next) = base next
 
 
 -- A more complex composite curve operation is unwrap. When given a composite
@@ -183,9 +192,9 @@ base (CompCurve o c next) = base next
 -- for all the curves in the composite and folds them into a final number using
 -- their respective operators.
 
-unwrap :: CompCurve -> Int -> Double -> Int -> Double
-unwrap (BaseCurve curve) dx y1 x          = fx curve y1 dx x
-unwrap (CompCurve op curve next) dx y1 x  = (unwrap next dx y1 x) `op` (unwrap (BaseCurve curve) dx y1 x)
+unwrap :: CompositeCurve -> Int -> Double -> Int -> Double
+unwrap (Base curve) dx y1 x             = fx curve y1 dx x
+unwrap (Wrap (op, curve) next) dx y1 x  = (unwrap next dx y1 x) `op` (fx curve y1 dx x)
 
 
 
@@ -204,9 +213,9 @@ type Proj = [Activity]
 -- by their respective composite curves.
 
 data Activity = Activity { time :: Int
-                         , cash :: CompCurve
-                         , cost :: CompCurve
-                         , prob :: CompCurve
+                         , cash :: CompositeCurve
+                         , cost :: CompositeCurve
+                         , prob :: CompositeCurve
                          }
 
 -- To compute the value (i.e. height / y / f(x) ) of some particular property
@@ -215,13 +224,15 @@ data Activity = Activity { time :: Int
 -- thought of as the previous value in the recursion or the accumulator in a
 -- fold), a project (which is a list of activities), and finally some x.
 
-prop :: (Activity -> CompCurve) -> Double -> Proj -> Int -> Double
+type Getter = Activity -> CompositeCurve
+prop :: Getter -> Double -> Proj -> Int -> Double
 prop _ prev [] _  = prev
 prop get prev (hd:tl) x
   | x < 0          = prev
   | x <= (time hd) = unwrap (get hd) (time hd) prev x
   | otherwise      = let y1 = unwrap (get hd) (time hd) prev x
                      in prop get y1 tl (x - time hd)
+
 
 -- prop is probably more easily understood through the following simplifying
 -- aliases that help us extract particular properties from projects.
@@ -275,9 +286,9 @@ sampleActivity y2 seed = let s1 = sample (timeDist y2) seed
                              s3 = sampleCurve (costDist y2) (snd s2)
                              s4 = sampleCurve (probDist y2) (snd s3)
                              time = fst s1
-                             cash = BaseCurve $ fst s2
-                             cost = BaseCurve $ fst s3
-                             prob = BaseCurve $ fst s4
+                             cash = Base $ fst s2
+                             cost = Base $ fst s3
+                             prob = Base $ fst s4
                              stp = Activity { time, cash, cost, prob }
                           in (stp, snd s4)
 
