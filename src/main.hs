@@ -226,7 +226,7 @@ unwrap expr y1 dx x = eval ((flip $ fx y1 dx) x) expr
 -- A project is a series of activities that need to be performed for the
 -- project to be completed.
 
-type Proj = [Activity]
+type Project = [Activity]
 
 -- An activity is what is commonly described as a stage. An activity spans some
 -- time and entails some cost, some revenues, and some probability of success.
@@ -246,7 +246,7 @@ data Activity = Activity { time :: Int
 -- fold), a project (which is a list of activities), and finally some x.
 
 type Getter = Activity -> CurveExp
-prop :: Getter -> Double -> Proj -> Int -> Double
+prop :: Getter -> Double -> Project -> Int -> Double
 prop _ prev [] _  = prev
 prop get prev (hd:tl) x
   | x < 0          = prev
@@ -258,9 +258,9 @@ prop get prev (hd:tl) x
 -- prop is probably more easily understood through the following simplifying
 -- aliases that help us extract particular properties from projects.
 
-cashAt = prop cash 0 :: Proj -> Int -> Double
-costAt = prop cost 0 :: Proj -> Int -> Double
-probAt = prop prob 1 :: Proj -> Int -> Double
+cashAt = prop cash 0 :: Project -> Int -> Double
+costAt = prop cost 0 :: Project -> Int -> Double
+probAt = prop prob 1 :: Project -> Int -> Double
 
 
 
