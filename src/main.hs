@@ -107,8 +107,8 @@ data Curve = PntsCurve Shape Double Double
 -- starting y (y1) and some delta x (dx) over which we should solve for any
 -- potentially remaining properties of the curve.
 
-fx :: Curve -> Double -> Int -> Int -> Double
-fx curve y1' dx x = let y1''   = y1 curve y1' dx
+fx ::  Double -> Int -> Curve -> Int -> Double
+fx y1' dx curve x = let y1''   = y1 curve y1' dx
                         y2''   = y2 curve y1' dx
                         easing = easer $ shape curve
                      in interpolate easing dx y2'' y1'' x
@@ -151,50 +151,71 @@ y1 _ y1 _                 = y1
 area :: Curve -> Double -> Int -> Double
 area (IdCurve) y1 dx        = y1 * (fromIntegral dx) -- optimization
 area (AreaCurve _ area) _ _ = area
-area shape y1 dx            = foldr (+) 0 (map (fx shape y1 dx) [0..(dx-1)])
+area curve y1 dx            = foldr (+) 0 (map (fx y1 dx curve) [0..(dx-1)])
                             -- TODO: + should be * for prob.
 
 
 
+
 ----------------------------------------------
-  -- Decorators, Operators, and Composite Curves
+  -- Expressions
 ----------------------------------------------
 
--- A Decorator of a and b is either just an a or a b wrapped around a decorator
--- of a and b.
-data Decorator a b = Base a | Wrap b (Decorator a b)
+-- An expression is a potentially infinite tree-like structure that only grows
+-- in one direction. It can usefully be thought of as a non-empty list where
+-- each element is comprised of three things. An operator, a value, and the
+-- rest of the list. Operators are binary but does not necessarily operate on
+-- the same type as the type of the value. The intention is that the operator
+-- should operate on the codomain of the domain of the values.
+
+type Operator a = a -> a -> a
+data Exp a b = Value a
+             | Operation (Exp a b) (Operator b) a
 
 
--- An Operator is a function that takes two doubles and produces a double.
--- Operators are used to alter stage properties. Addition, subtraction,
--- multiplication, and division are trivial examples of valid operators.
+-- The base of an expression can trivially be extracted by recursively digging
+-- down to the initial value.
 
-type Operator = Double -> Double -> Double
-
-
--- Curves can be combined using Operators. To model potentially infinitely
--- nested curves and operators, we use decorators.
-
-type CompositeCurve = Decorator Curve (Operator, Curve)
+base :: Exp a b -> a
+base (Value x)            = x
+base (Operation expr _ _) = base expr
 
 
--- We can perform multiple operations on composite curves. base is a simple
--- function that takes a composite curve, strips all of the wrappers and
--- returns the base curve at the bottom.
+-- An expression can be evaluated by providing a function that maps from the
+-- domain of the values to the codomain of the operators.
 
-base :: CompositeCurve -> Curve
-base (Base c)         = c
-base (Wrap wrap next) = base next
+eval :: (a -> b) -> (Exp a b) -> b
+eval f (Value x)             = f x
+eval f (Operation expr op x) = (eval f expr) `op` (f x)
 
 
--- A more complex composite curve operation is unwrap. When given a composite
--- curve, some delta x, some starting y, and some x, it computes f(x), i.e. y,
--- for all the curves in the composite and folds them into a final number using
--- their respective operators.
 
-unwrap :: CompositeCurve -> Int -> Double -> Int -> Double
-unwrap (Base curve) dx y1 x             = fx curve y1 dx x
-unwrap (Wrap (op, curve) next) dx y1 x  = (unwrap next dx y1 x) `op` (fx curve y1 dx x)
+
+----------------------------------------------
+  -- Curve algebra
+----------------------------------------------
+
+-- By combining curves using operators we can produce arbitrarily complex
+-- curves. This can be thought of as an algebra where operators operate on
+-- curves and curve expressions to produce complex curve expressions.
+
+type CurveExp = Exp Curve Double
+
+add :: Curve -> CurveExp -> CurveExp
+add c1 c2 = Operation c2 (+) c1
+
+sub :: Curve -> CurveExp -> CurveExp
+sub c1 c2 = Operation c2 (-) c1
+
+div :: Curve -> CurveExp -> CurveExp
+div c1 c2 = Operation c2 (/) c1
+
+mul :: Curve -> CurveExp -> CurveExp
+mul c1 c2 = Operation c2 (*) c1
+
+unwrap :: CurveExp -> Double -> Int -> Int -> Double
+unwrap expr y1 dx x = eval ((flip $ fx y1 dx) x) expr
+
 
 
 
@@ -213,9 +234,9 @@ type Proj = [Activity]
 -- by their respective composite curves.
 
 data Activity = Activity { time :: Int
-                         , cash :: CompositeCurve
-                         , cost :: CompositeCurve
-                         , prob :: CompositeCurve
+                         , cash :: CurveExp
+                         , cost :: CurveExp
+                         , prob :: CurveExp
                          }
 
 -- To compute the value (i.e. height / y / f(x) ) of some particular property
@@ -224,13 +245,13 @@ data Activity = Activity { time :: Int
 -- thought of as the previous value in the recursion or the accumulator in a
 -- fold), a project (which is a list of activities), and finally some x.
 
-type Getter = Activity -> CompositeCurve
+type Getter = Activity -> CurveExp
 prop :: Getter -> Double -> Proj -> Int -> Double
 prop _ prev [] _  = prev
 prop get prev (hd:tl) x
   | x < 0          = prev
-  | x <= (time hd) = unwrap (get hd) (time hd) prev x
-  | otherwise      = let y1 = unwrap (get hd) (time hd) prev x
+  | x <= (time hd) = unwrap (get hd) prev (time hd) x
+  | otherwise      = let y1 = unwrap (get hd) prev (time hd) x
                      in prop get y1 tl (x - time hd)
 
 
@@ -286,9 +307,9 @@ sampleActivity y2 seed = let s1 = sample (timeDist y2) seed
                              s3 = sampleCurve (costDist y2) (snd s2)
                              s4 = sampleCurve (probDist y2) (snd s3)
                              time = fst s1
-                             cash = Base $ fst s2
-                             cost = Base $ fst s3
-                             prob = Base $ fst s4
+                             cash = Value $ fst s2
+                             cost = Value $ fst s3
+                             prob = Value $ fst s4
                              stp = Activity { time, cash, cost, prob }
                           in (stp, snd s4)
 
