@@ -291,6 +291,20 @@ stgCost = stage _cost 0
 stgProb = stage _prob 1
 
 
+-- If a project has been changed by expressions we can always ask for the
+-- project's base.
+
+projBase :: Project -> Project
+projBase [] = []
+projBase (hd:tl) = activityBase hd : projBase tl
+
+activityBase :: Activity -> Activity
+activityBase a = Activity { _time = _time a
+                          , _cash = Value $ base $ _cash a
+                          , _cost = Value $ base $ _cost a
+                          , _prob = Value $ base $ _prob a }
+
+
 
 
 ----------------------------------------------
