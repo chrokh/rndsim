@@ -272,28 +272,28 @@ probAt = prop prob 1 :: Project -> Int -> Double
 -- stages, steps and props, we will define stochastic counterparts for all
 -- these types.
 
-type StochasticProject = [StochasticActivity]
-data StochasticActivity = StochasticActivity { timeDist :: Distribution Int
-                                             , cashDist :: StochasticCurve
-                                             , costDist :: StochasticCurve
-                                             , probDist :: StochasticCurve
-                                             }
+type ProjectDist = [ActivityDist]
+data ActivityDist = ActivityDist { timeDist :: Distribution Int
+                                 , cashDist :: CurveDist
+                                 , costDist :: CurveDist
+                                 , probDist :: CurveDist
+                                 }
 
-data StochasticCurve = StochasticIdCurve
-                     | StochasticGoalCurve Shape (Distribution Double)
-                     | StochasticAreaCurve Shape (Distribution Double)
-                     | StochasticPntsCurve Shape (Distribution Double) (Distribution Double)
+data CurveDist = IdCurveDist
+               | GoalCurveDist Shape (Distribution Double)
+               | AreaCurveDist Shape (Distribution Double)
+               | PntsCurveDist Shape (Distribution Double) (Distribution Double)
 
 
--- When passing a StochasticProject and a seed to the function sampleProject we
+-- When passing a ProjectDist and a seed to the function sampleProject we
 -- will get back a concrete Project along with the next seed. Clearly this also
--- entails turning StochasticActivities and StochasticCurves into Stages and Props
+-- entails turning StochasticActivities and CurveDists into Stages and Props
 -- respectively. The following sampling functions will of course not apply the
 -- same seed multiple times but rather always return a new seed along with
 -- every "random" sampling so that the next sampling can make sure of the new
 -- seed.
 
-sampleProject :: StochasticProject -> Seed -> ([Activity], Seed)
+sampleProject :: ProjectDist -> Seed -> ([Activity], Seed)
 sampleProject [   ] seed = ([], seed)
 sampleProject (h:t) seed = let _h = sampleActivity h seed
                                _t = sampleProject t (snd _h)
@@ -302,7 +302,7 @@ sampleProject (h:t) seed = let _h = sampleActivity h seed
                                _seed = snd _t
                             in (_this : _next , _seed)
 
-sampleActivity :: StochasticActivity -> Seed -> (Activity, Seed)
+sampleActivity :: ActivityDist -> Seed -> (Activity, Seed)
 sampleActivity y2 seed = let s1 = sample (timeDist y2) seed
                              s2 = sampleCurve (cashDist y2) (snd s1)
                              s3 = sampleCurve (costDist y2) (snd s2)
@@ -314,15 +314,15 @@ sampleActivity y2 seed = let s1 = sample (timeDist y2) seed
                              stp = Activity { time, cash, cost, prob }
                           in (stp, snd s4)
 
-sampleCurve :: StochasticCurve -> Seed -> (Curve, Seed)
-sampleCurve StochasticIdCurve seed = (IdCurve, seed)
-sampleCurve (StochasticGoalCurve shape dist) seed =
+sampleCurve :: CurveDist -> Seed -> (Curve, Seed)
+sampleCurve IdCurveDist seed = (IdCurve, seed)
+sampleCurve (GoalCurveDist shape dist) seed =
   let x = sample dist seed
    in (GoalCurve shape (fst x), snd x)
-sampleCurve (StochasticAreaCurve shape dist) seed =
+sampleCurve (AreaCurveDist shape dist) seed =
   let x = sample dist seed
    in (AreaCurve shape (fst x), snd x)
-sampleCurve (StochasticPntsCurve shape d1 d2) seed =
+sampleCurve (PntsCurveDist shape d1 d2) seed =
   let x1 = sample d1 seed
       x2 = sample d2 (snd x1)
    in (PntsCurve shape (fst x1) (fst x2), snd x2)
