@@ -331,6 +331,79 @@ sampleCurve (PntsCurveDist shape d1 d2) seed =
 
 
 ----------------------------------------------
+  -- DSL
+----------------------------------------------
+
+-- The following DSL is defined in order to simplify the construction of
+-- stochastic projects.
+
+uni min max     = Uniform min max
+tri min mid max = Triangular min mid max
+pnt n           = Estimate n
+
+hold t =
+  ActivityDist { timeDist = t
+               , cashDist = IdCurveDist
+               , costDist = IdCurveDist
+               , probDist = IdCurveDist
+               }
+over s t r c p =
+  ActivityDist { timeDist = t
+               , cashDist = AreaCurveDist s r
+               , costDist = AreaCurveDist s c
+               , probDist = AreaCurveDist s p
+               }
+upto s t r c p =
+  ActivityDist { timeDist = t
+               , cashDist = GoalCurveDist s r
+               , costDist = GoalCurveDist s c
+               , probDist = GoalCurveDist s p
+               }
+draw s t r c p =
+  ActivityDist { timeDist = t
+               , cashDist = PntsCurveDist s (fst r) (snd r)
+               , costDist = PntsCurveDist s (fst c) (snd c)
+               , probDist = PntsCurveDist s (fst p) (snd p)
+               }
+
+
+-- Example with DSL
+
+ex1 = [ over Lin (uni 6 12) (tri 100 150 200) (uni 100 200) (pnt 1)
+      , upto Sig (uni 10 24) (uni 100 200) (tri 100 150 200) (pnt 1)
+      , draw Exp (uni 3 12) (pnt 10, pnt 20) (uni 10 20, uni 20 30) (tri 10 20 30, pnt 50)
+      , hold (uni 12 20)
+      ]
+
+
+-- Example without DSL
+
+ex2 = [ ActivityDist { timeDist = Uniform 6 12
+                     , cashDist = AreaCurveDist Lin (Triangular 100 150 200)
+                     , costDist = AreaCurveDist Lin (Uniform 100 200)
+                     , probDist = AreaCurveDist Lin (Estimate 1)
+                     }
+      , ActivityDist { timeDist = Uniform 10 24
+                     , cashDist = GoalCurveDist Sig (Uniform 100 200)
+                     , costDist = GoalCurveDist Sig (Triangular 100 150 200)
+                     , probDist = GoalCurveDist Sig (Estimate 1)
+                     }
+      , ActivityDist { timeDist = Uniform 3 12
+                     , cashDist = PntsCurveDist Exp (Estimate 100) (Estimate 200)
+                     , costDist = PntsCurveDist Exp (Uniform 10 20) (Uniform 20 30)
+                     , probDist = PntsCurveDist Exp (Triangular 10 20 30) (Estimate 50)
+                     }
+      , ActivityDist { timeDist = Uniform 12 20
+                     , cashDist = IdCurveDist
+                     , costDist = IdCurveDist
+                     , probDist = IdCurveDist
+                     }
+      ]
+
+
+
+
+----------------------------------------------
   -- Main
 ----------------------------------------------
 
