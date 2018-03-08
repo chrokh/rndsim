@@ -1,5 +1,7 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns, TemplateHaskell #-}
 {-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
+
+import Control.Lens
 
 
 ----------------------------------------------
@@ -213,6 +215,9 @@ div c1 c2 = Operation c2 (/) c1
 mul :: Curve -> CurveExp -> CurveExp
 mul c1 c2 = Operation c2 (*) c1
 
+rep :: Curve -> CurveExp -> CurveExp
+rep c1 _ = Value c1
+
 unwrap :: CurveExp -> Double -> Int -> Int -> Double
 unwrap expr y1 dx x = eval ((flip $ fx y1 dx) x) expr
 
@@ -233,34 +238,78 @@ type Project = [Activity]
 -- These properties are distributed over the course of the stage as described
 -- by their respective composite curves.
 
-data Activity = Activity { time :: Int
-                         , cash :: CurveExp
-                         , cost :: CurveExp
-                         , prob :: CurveExp
+data Activity = Activity { _time :: Int
+                         , _cash :: CurveExp
+                         , _cost :: CurveExp
+                         , _prob :: CurveExp
                          }
 
--- To compute the value (i.e. height / y / f(x) ) of some particular property
--- of a project at some given x (i.e. time step) we need to pass a getter that
--- specifies which property we are looking for, a default value (which can be
--- thought of as the previous value in the recursion or the accumulator in a
--- fold), a project (which is a list of activities), and finally some x.
+-- To compute the value of some particular property at some particular project
+-- step, i.e. at some given time step, i.e. at some particular x, we need to
+-- pass a getter that specifies which property we are looking for, a default
+-- value (which can be thought of as the previous value in the recursion or the
+-- accumulator in a fold), a project (which is a list of activities), and
+-- finally some x.
 
-type Getter = Activity -> CurveExp
-prop :: Getter -> Double -> Project -> Int -> Double
-prop _ prev [] _  = prev
-prop get prev (hd:tl) x
-  | x < 0          = prev
-  | x <= (time hd) = unwrap (get hd) prev (time hd) x
-  | otherwise      = let y1 = unwrap (get hd) prev (time hd) x
-                     in prop get y1 tl (x - time hd)
+step :: (Activity -> CurveExp) -> Double -> Int -> Project -> Double
+step _ prev _ [] = prev
+step get prev x (hd:tl)
+  | x < 0           = prev
+  | x <= (_time hd) = unwrap (get hd) prev (_time hd) x
+  | otherwise       = let y1 = unwrap (get hd) prev (_time hd) x
+                       in step get y1 (x - _time hd) tl
 
 
--- prop is probably more easily understood through the following simplifying
+-- step is probably more easily understood through the following simplifying
 -- aliases that help us extract particular properties from projects.
 
-cashAt = prop cash 0 :: Project -> Int -> Double
-costAt = prop cost 0 :: Project -> Int -> Double
-probAt = prop prob 1 :: Project -> Int -> Double
+stpCash = step _cash 0 :: Int -> Project -> Double
+stpCost = step _cost 0 :: Int -> Project -> Double
+stpProb = step _prob 1 :: Int -> Project -> Double
+
+
+-- To compute the total value of some particular property during all steps of
+-- some particular stage, i.e. the e.g. cost of some whole stage or the
+-- probability of a full stage, we need to pass a getter that specifies which
+-- property we are looking for, a default value (which can be thought of as the
+-- value of that property of the last step of the previous stage).
+
+stage :: (Activity -> CurveExp) -> Double -> Int -> Project -> Double
+stage _ prev _ [] = prev
+stage get prev stg (hd:tl)
+  | stg == 0  = let f x = unwrap (get hd) prev (_time hd) x
+                    xs = [0..(_time hd - 1)]
+                 in foldr (+) 0 $ map f xs
+  | otherwise = let prv = unwrap (get hd) prev (_time hd) (_time hd - 1)
+                 in stage get prv (stg - 1) tl
+
+
+-- Let's also define a few aliases for common stage queries.
+
+stgCash = stage _cash 0
+stgCost = stage _cost 0
+stgProb = stage _prob 1
+
+
+
+
+----------------------------------------------
+  -- Interventions
+----------------------------------------------
+
+type Intervention = Project -> Project
+
+makeLenses ''Activity
+
+fdper :: Int -> Double -> Project -> Project
+fdper i size = over (ix i) $ over cash (rep $ GoalCurve Con size)
+
+pdper :: Int -> Double -> Project -> Project
+pdper i size = over (ix i) $ over cash $ add $ GoalCurve Con size
+
+grant :: Int -> Double -> Project -> Project
+grant i size p = over (ix i) (over cash $ rep $ GoalCurve Con $ max size $ stgCost i p) p
+
 
 
 
@@ -307,11 +356,11 @@ sampleActivity y2 seed = let s1 = sample (timeDist y2) seed
                              s2 = sampleCurve (cashDist y2) (snd s1)
                              s3 = sampleCurve (costDist y2) (snd s2)
                              s4 = sampleCurve (probDist y2) (snd s3)
-                             time = fst s1
-                             cash = Value $ fst s2
-                             cost = Value $ fst s3
-                             prob = Value $ fst s4
-                             stp = Activity { time, cash, cost, prob }
+                             _time = fst s1
+                             _cash = Value $ fst s2
+                             _cost = Value $ fst s3
+                             _prob = Value $ fst s4
+                             stp = Activity { _time, _cash, _cost, _prob }
                           in (stp, snd s4)
 
 sampleCurve :: CurveDist -> Seed -> (Curve, Seed)
@@ -347,7 +396,7 @@ hold t =
                , costDist = IdCurveDist
                , probDist = IdCurveDist
                }
-over s t r c p =
+thru s t r c p =
   ActivityDist { timeDist = t
                , cashDist = AreaCurveDist s r
                , costDist = AreaCurveDist s c
@@ -369,7 +418,7 @@ draw s t r c p =
 
 -- Example with DSL
 
-ex1 = [ over Lin (uni 6 12) (tri 100 150 200) (uni 100 200) (pnt 1)
+ex1 = [ thru Lin (uni 6 12) (tri 100 150 200) (uni 100 200) (pnt 1)
       , upto Sig (uni 10 24) (uni 100 200) (tri 100 150 200) (pnt 1)
       , draw Exp (uni 3 12) (pnt 10, pnt 20) (uni 10 20, uni 20 30) (tri 10 20 30, pnt 50)
       , hold (uni 12 20)
