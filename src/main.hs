@@ -1,4 +1,8 @@
-{-# LANGUAGE NamedFieldPuns, TemplateHaskell #-}
+{-# LANGUAGE NamedFieldPuns
+, TemplateHaskell
+, FunctionalDependencies
+, FlexibleInstances
+#-}
 {-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
 
 import Control.Lens
@@ -32,18 +36,30 @@ data Distribution a = Uniform a a
 -- Importantly we must always return a new Seed since sampling is an impure
 -- operation.
 
-class Samplable a where
-  sample :: Distribution a -> Seed -> (a, Seed)
+class Samplable a b | a -> b where
+  sample :: a -> Seed -> (b, Seed)
 
-instance Samplable Double where
+instance Samplable (Distribution Double) Double where
   sample (Estimate x) seed             = (x, seed)    -- TODO
   sample (Uniform min max) seed        = (min, seed)  -- TODO
   sample (Triangular min mid max) seed = (min, seed)  -- TODO
 
-instance Samplable Int where
+instance Samplable (Distribution Int) Int where
   sample (Estimate x) seed             = (x, seed)   -- TODO
   sample (Uniform min max) seed        = (min, seed) -- TODO
   sample (Triangular min mid max) seed = (min, seed) -- TODO
+
+
+-- If you have a list of samplables and a seed then you can sample them to
+-- produce a list of samples and a new seed.
+
+sampleAll :: Samplable a b => [a] -> Seed -> ([b], Seed)
+sampleAll [] s        = ([], s)
+sampleAll (hd : tl) s = let this = sample hd s
+                            next = sampleAll tl (snd this)
+                            smpl = fst this
+                         in (smpl : fst next, snd next)
+
 
 
 
@@ -348,47 +364,37 @@ data CurveDist = IdCurveDist
                | PntsCurveDist Shape (Distribution Double) (Distribution Double)
 
 
--- When passing a ProjectDist and a seed to the function sampleProject we
--- will get back a concrete Project along with the next seed. Clearly this also
--- entails turning StochasticActivities and CurveDists into Stages and Props
--- respectively. The following sampling functions will of course not apply the
--- same seed multiple times but rather always return a new seed along with
--- every "random" sampling so that the next sampling can make sure of the new
--- seed.
+-- When sampling a Project dist we will get a Project. Clearly this entails
+-- sampling each individual ActivityDist of the ProjectDist, which in turn
+-- entails sampling each individual distribution (e.g. CurveDist) of all
+-- properties of the activity. Of course, the same seed must not be reused when
+-- sampling multiple times, which means that all sampling functions return the
+-- sampled result and a new seed that can be passed to the next sampler.
 
-sampleProject :: ProjectDist -> Seed -> ([Activity], Seed)
-sampleProject [   ] seed = ([], seed)
-sampleProject (h:t) seed = let _h = sampleActivity h seed
-                               _t = sampleProject t (snd _h)
-                               _this = fst _h
-                               _next = fst _t
-                               _seed = snd _t
-                            in (_this : _next , _seed)
+instance Samplable ProjectDist Project where
+  sample = sampleAll
 
-sampleActivity :: ActivityDist -> Seed -> (Activity, Seed)
-sampleActivity y2 seed = let s1 = sample (timeDist y2) seed
-                             s2 = sampleCurve (cashDist y2) (snd s1)
-                             s3 = sampleCurve (costDist y2) (snd s2)
-                             s4 = sampleCurve (probDist y2) (snd s3)
-                             _time = fst s1
-                             _cash = Value $ fst s2
-                             _cost = Value $ fst s3
-                             _prob = Value $ fst s4
-                             stp = Activity { _time, _cash, _cost, _prob }
-                          in (stp, snd s4)
+instance Samplable ActivityDist Activity where
+  sample y2 seed = let s1 = sample (timeDist y2) seed
+                       s2 = sample (cashDist y2) (snd s1)
+                       s3 = sample (costDist y2) (snd s2)
+                       s4 = sample (probDist y2) (snd s3)
+                       _time = fst s1
+                       _cash = Value $ fst s2
+                       _cost = Value $ fst s3
+                       _prob = Value $ fst s4
+                       stp = Activity { _time, _cash, _cost, _prob }
+                    in (stp, snd s4)
 
-sampleCurve :: CurveDist -> Seed -> (Curve, Seed)
-sampleCurve IdCurveDist seed = (IdCurve, seed)
-sampleCurve (GoalCurveDist shape dist) seed =
-  let x = sample dist seed
-   in (GoalCurve shape (fst x), snd x)
-sampleCurve (AreaCurveDist shape dist) seed =
-  let x = sample dist seed
-   in (AreaCurve shape (fst x), snd x)
-sampleCurve (PntsCurveDist shape d1 d2) seed =
-  let x1 = sample d1 seed
-      x2 = sample d2 (snd x1)
-   in (PntsCurve shape (fst x1) (fst x2), snd x2)
+instance Samplable CurveDist Curve where
+  sample IdCurveDist seed = (IdCurve, seed)
+  sample (GoalCurveDist shape dist) seed = let x = sample dist seed
+                                            in (GoalCurve shape (fst x), snd x)
+  sample (AreaCurveDist shape dist) seed = let x = sample dist seed
+                                            in (AreaCurve shape (fst x), snd x)
+  sample (PntsCurveDist shape d1 d2) seed = let x1 = sample d1 seed
+                                                x2 = sample d2 (snd x1)
+                                             in (PntsCurve shape (fst x1) (fst x2), snd x2)
 
 
 
