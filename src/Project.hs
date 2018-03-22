@@ -52,8 +52,8 @@ step :: (Activity -> CurveExp) -> Double -> Int -> Project -> Double
 step _ prev _ [] = prev
 step get prev x (hd:tl)
   | x < 0           = prev
-  | x <= (_time hd) = unwrap (get hd) prev (_time hd) x
-  | otherwise       = let y1 = unwrap (get hd) prev (_time hd) x
+  | x <= (_time hd) = compute (get hd) prev (_time hd) x
+  | otherwise       = let y1 = compute (get hd) prev (_time hd) x
                        in step get y1 (x - _time hd) tl
 
 
@@ -74,10 +74,10 @@ stpProb = step _prob 1 :: Int -> Project -> Double
 stage :: (Activity -> CurveExp) -> Double -> Int -> Project -> Double
 stage _ prev _ [] = prev
 stage get prev stg (hd:tl)
-  | stg == 0  = let f x = unwrap (get hd) prev (_time hd) x
+  | stg == 0  = let f x = compute (get hd) prev (_time hd) x
                     xs = [0..(_time hd - 1)]
                  in foldr (+) 0 $ map f xs
-  | otherwise = let prv = unwrap (get hd) prev (_time hd) (_time hd - 1)
+  | otherwise = let prv = compute (get hd) prev (_time hd) (_time hd - 1)
                  in stage get prv (stg - 1) tl
 
 

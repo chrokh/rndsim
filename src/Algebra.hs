@@ -7,7 +7,7 @@ module Algebra
   , (@/)
   , (@*)
   , (@=)
-  , unwrap
+  , compute
   ) where
 
 
@@ -39,7 +39,7 @@ type CurveExp = Exp Curve Double
 (@=) :: Curve -> CurveExp -> CurveExp
 (@=) c1 _ = Value c1
 
-unwrap :: CurveExp -> Double -> Int -> Int -> Double
-unwrap expr y1 dx x = eval ((flip $ fx y1 dx) x) expr
+compute :: CurveExp -> Double -> Int -> Int -> Double
+compute expr y1 dx x = eval ((flip $ fx y1 dx) x) expr
 
 
