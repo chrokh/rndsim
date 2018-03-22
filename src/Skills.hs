@@ -6,6 +6,7 @@ module Skills
            , probEff
            , timeEff
            )
+  , wrap
   ) where
 
 import Project

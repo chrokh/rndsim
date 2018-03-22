@@ -1,11 +1,24 @@
-module Agent (Agent (Agent)) where
+module Agent
+  ( Agent (Agent, skillset, criteria)
+  , Criteria (Criteria, capital, threshold, discount)
+  , interpret
+  ) where
 
 import Skills
+import Project
 
 data Agent = Agent
-  { skills    :: Skills
-  , capital   :: Double
+  { skillset :: Skillset
+  , criteria :: Criteria
+  }
+
+data Criteria = Criteria
+  { capital   :: Double
   , threshold :: Double
   , discount  :: Double
   }
+
+
+interpret :: Agent -> Project -> Project
+interpret a p = wrap (skillset a) p
 
