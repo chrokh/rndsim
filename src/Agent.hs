@@ -4,7 +4,7 @@ module Agent
   , interpret
   ) where
 
-import Skills
+import Skillset
 import Project
 
 data Agent = Agent

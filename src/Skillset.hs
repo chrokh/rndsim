@@ -1,6 +1,5 @@
-module Skills
-  ( Efficacy
-  , Skillset
+module Skillset
+  ( Skillset
   , Skills ( costEff
            , cashEff
            , probEff
