@@ -11,6 +11,7 @@ module Discoverable
 ----------------------------------------------
 
 import Samplable
+import Random
 import ProjectDist
 import Project
 
