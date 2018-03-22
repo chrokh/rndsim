@@ -48,7 +48,7 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules: Algebra, Curve, Discoverable, DSL, Expression, Project, ProjectDist, Samplable, Shape
+  exposed-modules: Algebra, Curve, Discoverable, DSL, Expression, Intervention, Project, ProjectDist, Samplable, Shape
 
   -- Modules included in this library but not exported.
   -- other-modules:
@@ -69,5 +69,5 @@ executable Example
   main-is:           Example.hs
   hs-source-dirs:    src
   build-depends:     base >=4.10 && <4.11, lens
-  other-modules:     Algebra, Curve, DSL, Expression, Project, ProjectDist, Samplable, Shape
+  other-modules:     Algebra, Curve, DSL, Expression, Intervention, Project, ProjectDist, Samplable, Shape
   default-language:  Haskell2010

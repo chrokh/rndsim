@@ -11,6 +11,8 @@ module Project
   , stgCost
   , stgProb
   , projBase
+  , propDiff
+  , flowDiff
   , activityBase
   ) where
 
@@ -99,3 +101,15 @@ activityBase a = Activity { _time = _time a
                           , _cost = Value $ base $ _cost a
                           , _prob = Value $ base $ _prob a }
 
+
+-- Sum of some property of some project.
+propSum :: (Activity -> CurveExp) -> Project -> Double
+propSum f p = foldr (+) 0 $ map (\i -> stage f 0 i p) [0..(length p-1)]
+
+-- Difference between the total sum of some property between two projects.
+propDiff :: (Activity -> CurveExp) -> Project -> Project -> Double
+propDiff f p1 p2 = (propSum f p1) - (propSum f p2)
+
+-- Difference in total non-discounted cash flow (revenues - costs) between two projects.
+flowDiff :: Project -> Project -> Double
+flowDiff p1 p2 = propDiff _cash p1 p2 + propDiff _cost p1 p2

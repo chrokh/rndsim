@@ -9,6 +9,7 @@ import Algebra
 import Project
 import ProjectDist
 import DSL
+import Intervention
 
 
 ----------------------------------------------
@@ -19,6 +20,7 @@ type Intervention = Project -> Project
 
 makeLenses ''Activity
 
+-- Example effects
 fdper :: Int -> Double -> Project -> Project
 fdper i size = over (ix i) $ over cash ((@=) $ GoalCurve Con size)
 
@@ -29,11 +31,33 @@ grant :: Int -> Double -> Project -> Project
 grant i size p = over (ix i) (over cash $ (@=) $ GoalCurve Con $ max size $ stgCost i p) p
 
 
+-- Example interventions
+iFDPER i size = Intervention
+  { effect    = fdper i size
+  , horizon   = 3
+  , fund      = Fund
+    { period     = 12
+    , size       = 2000
+    , recipients = 3
+    , remaining  = 0
+    }
+  }
+
+iGRANT i size = Intervention
+  { effect  = grant i size
+  , horizon = 0
+  , fund    = Fund
+    { period     = 12
+    , size       = 100
+    , recipients = 99999
+    , remaining  = 100
+  }
+}
 
 
 
 ----------------------------------------------
-  -- Interventions
+  -- Projects
 ----------------------------------------------
 
 -- Example with DSL
