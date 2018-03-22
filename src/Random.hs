@@ -12,6 +12,7 @@ module Random
 ----------------------------------------------
 
 import Samplable
+import Distribution
 
 
 -- Assuming that a probability is between 0 and 1 we can call succeeds with the

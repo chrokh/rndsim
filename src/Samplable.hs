@@ -1,9 +1,8 @@
-{-# LANGUAGE FunctionalDependencies , FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies, FlexibleInstances #-}
 {-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
 
 module Samplable
   ( Seed
-  , Distribution (Uniform, Triangular, Estimate)
   , Samplable
   , sample
   , sampleAll
@@ -20,14 +19,6 @@ module Samplable
 type Seed = Int
 
 
--- To describe stochastic data, we need statistical distributions. So, let's
--- define a few distribution data types.
-
-data Distribution a = Uniform a a
-                    | Triangular a a a
-                    | Estimate a
-
-
 -- Distributions must be samplable, but how to sample a distribution might
 -- depend on what the distribution contains. In other words, if we have a
 -- distribution over a's then when sampling we should receive an a. Concretely,
@@ -40,16 +31,6 @@ data Distribution a = Uniform a a
 
 class Samplable a b | a -> b where
   sample :: a -> Seed -> (b, Seed)
-
-instance Samplable (Distribution Double) Double where
-  sample (Estimate x) seed             = (x, seed)    -- TODO
-  sample (Uniform min max) seed        = (min, seed)  -- TODO
-  sample (Triangular min mid max) seed = (min, seed)  -- TODO
-
-instance Samplable (Distribution Int) Int where
-  sample (Estimate x) seed             = (x, seed)   -- TODO
-  sample (Uniform min max) seed        = (min, seed) -- TODO
-  sample (Triangular min mid max) seed = (min, seed) -- TODO
 
 
 -- If you have a list of samplables and a seed then you can sample them to

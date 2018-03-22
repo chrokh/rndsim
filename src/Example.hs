@@ -3,6 +3,7 @@
 
 import Control.Lens
 import Samplable
+import Distribution
 import Shape
 import Curve
 import Algebra

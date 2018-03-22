@@ -16,6 +16,7 @@ module DSL
 ----------------------------------------------
 
 import Samplable
+import Distribution
 import Shape
 import ProjectDist
 

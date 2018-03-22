@@ -22,6 +22,7 @@ module ProjectDist
 ----------------------------------------------
 
 import Samplable
+import Distribution
 import Project
 import Curve
 import Shape
