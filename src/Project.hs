@@ -7,6 +7,7 @@ module Project
   , stpCash
   , stpCost
   , stpProb
+  , stpFlow
   , stgCash
   , stgCost
   , stgProb
@@ -63,6 +64,8 @@ step get prev x (hd:tl)
 stpCash = step _cash 0 :: Int -> Project -> Double
 stpCost = step _cost 0 :: Int -> Project -> Double
 stpProb = step _prob 1 :: Int -> Project -> Double
+stpFlow :: Int -> Project -> Double
+stpFlow t p = stpCash t p - stpCost t p
 
 
 -- To compute the total value of some particular property during all steps of
