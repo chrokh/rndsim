@@ -1,8 +1,8 @@
 {-# LANGUAGE NamedFieldPuns, FunctionalDependencies, FlexibleInstances #-}
 {-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
 
-module ProjectDist
-  ( ProjectDist
+module ProductDist
+  ( ProductDist
   , ActivityDist ( ActivityDist
                  , timeDist
                  , cashDist
@@ -18,22 +18,22 @@ module ProjectDist
 
 
 ----------------------------------------------
-  -- Sampling projects
+  -- Sampling products
 ----------------------------------------------
 
 import Samplable
 import Distribution
-import Project
+import Product
 import Curve
 import Shape
 import Expression
 
 
--- However, since we need to be able to describe stochastic projects, and thus
+-- However, since we need to be able to describe stochastic products, and thus
 -- stages, steps and props, we will define stochastic counterparts for all
 -- these types.
 
-type ProjectDist = [ActivityDist]
+type ProductDist = [ActivityDist]
 data ActivityDist = ActivityDist { timeDist :: Distribution Int
                                  , cashDist :: CurveDist
                                  , costDist :: CurveDist
@@ -46,14 +46,14 @@ data CurveDist = IdCurveDist
                | PntsCurveDist Shape (Distribution Double) (Distribution Double)
 
 
--- When sampling a Project dist we will get a Project. Clearly this entails
--- sampling each individual ActivityDist of the ProjectDist, which in turn
+-- When sampling a Product dist we will get a Product. Clearly this entails
+-- sampling each individual ActivityDist of the ProductDist, which in turn
 -- entails sampling each individual distribution (e.g. CurveDist) of all
 -- properties of the activity. Of course, the same seed must not be reused when
 -- sampling multiple times, which means that all sampling functions return the
 -- sampled result and a new seed that can be passed to the next sampler.
 
-instance Samplable ProjectDist Project where
+instance Samplable ProductDist Product where
   sample = sampleAll
 
 instance Samplable ActivityDist Activity where

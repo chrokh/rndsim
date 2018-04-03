@@ -12,15 +12,15 @@ module Discoverable
 
 import Samplable
 import Random
-import ProjectDist
-import Project
+import ProductDist
+import Product
 
 
 data Discoverable = Discoverable { freq :: Double
-                                 , proj :: ProjectDist
+                                 , prod :: ProductDist
                                  }
 
-instance Samplable Discoverable [Project] where
-  sample disc seed = let dists = samplicate (proj disc) (freq disc) seed
+instance Samplable Discoverable [Product] where
+  sample disc seed = let dists = samplicate (prod disc) (freq disc) seed
                       in sampleAll (fst dists) (snd dists)
 

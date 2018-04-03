@@ -18,11 +18,11 @@ module DSL
 import Samplable
 import Distribution
 import Shape
-import ProjectDist
+import ProductDist
 
 
 -- The following DSL is defined in order to simplify the construction of
--- stochastic projects.
+-- stochastic products.
 
 uni min max     = Uniform min max
 tri min mid max = Triangular min mid max

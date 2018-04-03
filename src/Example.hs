@@ -7,8 +7,8 @@ import Distribution
 import Shape
 import Curve
 import Algebra
-import Project
-import ProjectDist
+import Product
+import ProductDist
 import DSL
 import Intervention
 
@@ -17,18 +17,18 @@ import Intervention
   -- Interventions
 ----------------------------------------------
 
-type Intervention = Project -> Project
+type Intervention = Product -> Product
 
 makeLenses ''Activity
 
 -- Example effects
-fdper :: Int -> Double -> Project -> Project
+fdper :: Int -> Double -> Product -> Product
 fdper i size = over (ix i) $ over cash ((@=) $ GoalCurve Con size)
 
-pdper :: Int -> Double -> Project -> Project
+pdper :: Int -> Double -> Product -> Product
 pdper i size = over (ix i) $ over cash $ (@+) $ GoalCurve Con size
 
-grant :: Int -> Double -> Project -> Project
+grant :: Int -> Double -> Product -> Product
 grant i size p = over (ix i) (over cash $ (@=) $ GoalCurve Con $ max size $ stgCost i p) p
 
 
@@ -58,7 +58,7 @@ iGRANT i size = Intervention
 
 
 ----------------------------------------------
-  -- Projects
+  -- Products
 ----------------------------------------------
 
 -- Example with DSL
@@ -70,7 +70,7 @@ ex1 = [ thru Lin (uni 6 12) (tri 100 150 200) (uni 100 200) (pnt 1)
       ]
 
 
--- Example project without DSL
+-- Example product without DSL
 
 ex2 = [ ActivityDist { timeDist = Uniform 6 12
                      , cashDist = AreaCurveDist Lin (Triangular 100 150 200)

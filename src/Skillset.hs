@@ -8,7 +8,7 @@ module Skillset
   , wrap
   ) where
 
-import Project
+import Product
 import Algebra
 import Curve
 import Shape
@@ -23,7 +23,7 @@ data Skills = Skills
   }
 
 
-wrap :: Skillset -> Project -> Project
+wrap :: Skillset -> Product -> Product
 wrap [] p = p
 wrap _ [] = []
 wrap (sh:st) (ah:at) = Activity

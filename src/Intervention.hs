@@ -12,11 +12,11 @@ module Intervention
 ----------------------------------------------
 
 import Algebra
-import Project
+import Product
 
 
 data Intervention = Intervention
-  { effect    :: Project -> Project
+  { effect    :: Product -> Product
   , fund      :: Fund
   , horizon   :: Int
   }
@@ -29,7 +29,7 @@ data Fund = Fund
   }
 
 
-commit :: Intervention -> Project -> (Intervention, Project)
+commit :: Intervention -> Product -> (Intervention, Product)
 commit i p
   | commitable i p =
     let p' = wrap i p
@@ -38,21 +38,21 @@ commit i p
      in (i', p')
   | otherwise = (i, p)
 
-wrap :: Intervention -> Project -> Project
+wrap :: Intervention -> Product -> Product
 wrap i p
   | (eligible i p) = effect i p
   | otherwise = p
 
-commitable :: Intervention -> Project -> Bool
+commitable :: Intervention -> Product -> Bool
 commitable i p = eligible i p && available i p
 
-eligible :: Intervention -> Project -> Bool
+eligible :: Intervention -> Product -> Bool
 eligible i p = True
 
-available :: Intervention -> Project -> Bool
+available :: Intervention -> Product -> Bool
 available i p = (recipients.fund) i > 0 && (remaining.fund) i > costOf i p
 
-costOf :: Intervention -> Project -> Double
+costOf :: Intervention -> Product -> Double
 costOf i p = flowDiff (wrap i p) p
 
 replenish :: Fund -> Int -> Fund
