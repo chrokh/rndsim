@@ -3,7 +3,6 @@
 module Product
   ( Product
   , Activity (Activity, _time, _cash, _cost, _prob)
-  , step
   , stpCash
   , stpCost
   , stpProb

@@ -18,22 +18,21 @@ data Criteria = Criteria
   , discount  :: Double
   }
 
+data Project = Project
+  { prod :: Product
+  , step :: Int
+  }
 
 interpret :: Agent -> Product -> Product
 interpret a p = wrap (skillset a) p
 
-data Project = Project
-  { prod :: Product
-  , at   :: Int
-  }
-
 affords :: Agent -> Project -> Bool
-affords a d = stpCost (at d) (prod d) >= capital a
+affords a d = stpCost (step d) (prod d) >= capital a
 
 develop :: Agent -> Project -> (Agent, Project)
 develop a p
   | affords a p =
-    let a' = a { capital = (capital a - (stpFlow (at p) (prod p))) }
-        p' = p { at = at p + 1 }
+    let a' = a { capital = (capital a - (stpFlow (step p) (prod p))) }
+        p' = p { step = step p + 1 }
        in (a', p')
   | otherwise = (a, p)
