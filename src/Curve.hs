@@ -34,8 +34,7 @@ data Curve = PntsCurve Shape Double Double
 fx ::  Double -> Int -> Curve -> Int -> Double
 fx y1' dx curve x = let y1''   = y1 curve y1' dx
                         y2''   = y2 curve y1' dx
-                        easing = easer $ shape curve
-                     in interpolate easing dx y2'' y1'' x
+                     in interpolate (shape curve) dx y2'' y1'' x
 
 
 -- We can trivially extract the shape of a curve.

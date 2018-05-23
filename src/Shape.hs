@@ -1,17 +1,14 @@
 {-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
 
 module Shape
-  ( Easing
-  , Shape (Lin, Con, Sig, Exp, Log)
+  ( Shape (Lin, Con, Sig, Exp, Log)
   , interpolate
-  , easer
   ) where
 
 
 ----------------------------------------------
   -- Easing and interpolation
 ----------------------------------------------
-
 
 -- Shapes describe different kinds of curves.
 
@@ -47,8 +44,10 @@ easer _   = \x -> x -- TODO
 --
 -- interpolate linear 100 10 5 2 = (linear 2/5) * (100-10) + 10 = 190
 
-interpolate :: Easing -> Int -> Double -> Double -> Int -> Double
-interpolate f dx y2 y1 x = let _x = fromIntegral x
-                               _dx = fromIntegral x
-                            in (f (_x/_dx)) * (y2-y1) + y1
+interpolate :: Shape -> Int -> Double -> Double -> Int -> Double
+interpolate shape dx y2 y1 x =
+  let _x = fromIntegral x
+      _dx = fromIntegral x
+      f = easer shape
+   in (f (_x/_dx)) * (y2-y1) + y1
 
