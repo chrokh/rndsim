@@ -48,7 +48,7 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules: Agent, Algebra, Curve, Discoverable, Distribution, DSL, Evaluation, Expression, Intervention, Product, ProductDist, Random, Samplable, Shape, Skillset
+  exposed-modules: Activity, ActivityDist, Agent, Algebra, Curve, CurveDist, Discoverable, Distribution, DSL, Evaluation, Expression, Intervention, Product, ProductDist, Random, Samplable, Shape, Skillset
 
   -- Modules included in this library but not exported.
   -- other-modules:
@@ -57,7 +57,7 @@ library
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.10 && <4.11
+  build-depends:       base >=4.10 && <4.11, lens
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -69,5 +69,4 @@ executable Example
   main-is:           Example.hs
   hs-source-dirs:    src
   build-depends:     base >=4.10 && <4.11, lens
-  other-modules:     Agent, Algebra, Curve, Distribution, DSL, Evaluation, Expression, Intervention, Product, ProductDist, Random, Samplable, Shape, Skillset
   default-language:  Haskell2010

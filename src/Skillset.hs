@@ -9,6 +9,7 @@ module Skillset
   ) where
 
 import Product
+import Activity
 import Algebra
 import Curve
 import Shape

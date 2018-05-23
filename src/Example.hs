@@ -9,6 +9,9 @@ import Curve
 import Algebra
 import Product
 import ProductDist
+import Activity
+import ActivityDist
+import CurveDist
 import DSL
 import Intervention
 

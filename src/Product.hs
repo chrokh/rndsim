@@ -2,7 +2,6 @@
 
 module Product
   ( Product
-  , Activity (Activity, _time, _cash, _cost, _prob)
   , stpCash
   , stpCost
   , stpProb
@@ -22,7 +21,7 @@ module Product
 ----------------------------------------------
 
 import Algebra
-import Expression -- TODO: Should not be needed?
+import Activity
 
 
 -- A product is a series of activities that need to be performed for the
@@ -30,16 +29,6 @@ import Expression -- TODO: Should not be needed?
 
 type Product = [Activity]
 
--- An activity is what is commonly described as a stage. An activity spans some
--- time and entails some cost, some revenues, and some probability of success.
--- These properties are distributed over the course of the stage as described
--- by their respective composite curves.
-
-data Activity = Activity { _time :: Int
-                         , _cash :: CurveExp
-                         , _cost :: CurveExp
-                         , _prob :: CurveExp
-                         }
 
 -- To compute the value of some particular property at some particular product
 -- step, i.e. at some given time step, i.e. at some particular x, we need to
@@ -96,12 +85,6 @@ stgProb = stage _prob 1
 prodBase :: Product -> Product
 prodBase [] = []
 prodBase (hd:tl) = activityBase hd : prodBase tl
-
-activityBase :: Activity -> Activity
-activityBase a = Activity { _time = _time a
-                          , _cash = Value $ base $ _cash a
-                          , _cost = Value $ base $ _cost a
-                          , _prob = Value $ base $ _prob a }
 
 
 -- Sum of some property of some product.

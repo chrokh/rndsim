@@ -18,7 +18,8 @@ module DSL
 import Samplable
 import Distribution
 import Shape
-import ProductDist
+import ActivityDist
+import CurveDist
 
 
 -- The following DSL is defined in order to simplify the construction of
