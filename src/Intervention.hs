@@ -1,6 +1,5 @@
 module Intervention
-  ( Fund (Fund, period, size, recipients, remaining)
-  , Intervention (Intervention, effect, fund, horizon)
+  ( Intervention (Intervention, effect, fund, horizon)
   , commit
   , wrap
   , replenish
@@ -13,19 +12,13 @@ module Intervention
 
 import Algebra
 import Product
+import Fund
 
 
 data Intervention = Intervention
   { effect    :: Product -> Product
   , fund      :: Fund
   , horizon   :: Int
-  }
-
-data Fund = Fund
-  { period :: Int
-  , size  :: Double
-  , recipients :: Int
-  , remaining :: Double
   }
 
 
@@ -54,14 +47,3 @@ available i p = (recipients.fund) i > 0 && (remaining.fund) i > costOf i p
 
 costOf :: Intervention -> Product -> Double
 costOf i p = flowDiff (wrap i p) p
-
-replenish :: Fund -> Int -> Fund
-replenish p t
-  | t `mod` (period p) == 0 = p { remaining = size p }
-  | otherwise = p
-
-withdraw :: Double -> Fund -> Fund
-withdraw amount fnd = fnd
-  { recipients = (recipients fnd) - 1
-  , remaining  = (remaining fnd) - amount
-  }
