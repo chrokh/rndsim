@@ -27,13 +27,13 @@ makeLenses ''Activity
 
 -- Example effects
 fdper :: Int -> Double -> Product -> Product
-fdper i size = over (ix i) $ over cash ((@=) $ GoalCurve Con size)
+fdper i size = over (ix i.cash) $ (@=) (GoalCurve Con size)
 
 pdper :: Int -> Double -> Product -> Product
-pdper i size = over (ix i) $ over cash $ (@+) $ GoalCurve Con size
+pdper i size = over (ix i.cash) $ (@+) (GoalCurve Con size)
 
 grant :: Int -> Double -> Product -> Product
-grant i size p = over (ix i) (over cash $ (@=) $ GoalCurve Con $ max size $ stgCost i p) p
+grant i size p = over (ix i.cash) ((@=) (GoalCurve Con (max size (stgCost i p)))) p
 
 
 -- Example interventions
