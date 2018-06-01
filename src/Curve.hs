@@ -6,7 +6,6 @@ module Curve
   , shape
   , y2
   , y1
-  , area
   ) where
 
 
@@ -63,19 +62,4 @@ y2 (PntsCurve _ _ y2) _ _ = y2
 y1 :: Curve -> Double -> Int -> Double
 y1 (PntsCurve _ y1 _) _ _ = y1
 y1 _ y1 _                 = y1
-
-
--- Conversely, we can also find the area of a curve if given some y1 and some
--- delta x. The word 'area' is used indicatively and not precisely. The area of
--- a series of a probability curve is the total probability of successfully
--- performing each step of the curve. For probability, the area is in other
--- words the product, while for other properties it is the sum.
-
-area :: Curve -> Double -> Int -> Double
-area (IdCurve) y1 dx        = y1 * (fromIntegral dx) -- optimization
-area (AreaCurve _ area) _ _ = area
-area curve y1 dx            = foldr (+) 0 (map (fx y1 dx curve) [0..(dx-1)])
-                            -- TODO: + should be * for prob.
-
-
 
