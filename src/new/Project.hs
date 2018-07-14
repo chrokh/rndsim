@@ -7,11 +7,13 @@ module New.Project
 
 
 import New.Aliases
+import New.Product
 
 
 data Project = Project
-  { uuid :: Uuid
-  , state :: ProjectState
+  { uuid    :: Uuid
+  , state   :: ProjectState
+  , product :: Product
   --, ... TODO
   }
 
