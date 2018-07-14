@@ -1,19 +1,20 @@
 module New.Project
   ( Project ( Project
             , state
+            , drug
             )
   , ProjectState (Developing, Terminated) --- TODO TEMP!!!
   ) where
 
 
 import New.Aliases
-import New.Product
+import New.Drug
 
 
 data Project = Project
-  { uuid    :: Uuid
-  , state   :: ProjectState
-  , product :: Product
+  { uuid  :: Uuid
+  , state :: ProjectState
+  , drug  :: Drug
   --, ... TODO
   }
 

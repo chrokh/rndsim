@@ -9,7 +9,7 @@ import New.Aliases
 import New.Agent
 import New.ProducerProps
 import New.Project
-import New.Product
+import New.Drug
 
 
 data Action
@@ -19,7 +19,7 @@ data Action
   | Failure        Uuid
   | Termination    Uuid
 --------------------------------
-  | Production     Todo
+  | Drug           Todo
   | Consumption    Todo
 --------------------------------
   | Spinoff        Todo
@@ -36,7 +36,7 @@ data Action
 --------------------------------
 
 data DiscoveryData = DiscoveryData
-  { discovery  :: Product
+  { discovery  :: Drug
   , discoverer :: Uuid
   }
 
@@ -68,11 +68,29 @@ class Actionable a where
 
 
 instance Actionable Agent where
-  interpret action@(Termination pid) (Producer props) =
+  interpret action@(Development _) (Producer props) =
+    Producer props { projects = map (interpret action) (projects props) }
+  interpret action@(Termination _) (Producer props) =
     Producer props { projects = map (interpret action) (projects props) }
   interpret _ a = a
 
 instance Actionable Project where
-  interpret (Termination pid) proj = proj { state = Terminated }
+  interpret action@(Development _) prj =
+    prj { drug = interpret action (drug (prj)) }
+  interpret (Termination _) prj =
+    prj { state = Terminated }
   interpret _ a = a
 
+instance Actionable Drug where
+  interpret (Development pid) drg
+    | (pid == New.Drug.uuid drg) = drg
+      { current   = nextCurrent drg
+      , remaining = nextRemaining drg
+      , completed = nextCompleted drg
+      }
+    | otherwise = drg
+  interpret _ a = a
+
+nextCurrent   x = current x -- TODO
+nextRemaining x = [] -- TODO
+nextCompleted x = [] -- TODO
