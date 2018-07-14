@@ -7,4 +7,5 @@ import New.Aliases
 
 data Product = Product
   { id         :: Uuid
+  , cures      :: [Disease]
   }
