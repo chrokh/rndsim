@@ -7,6 +7,7 @@ import New.Agent
 import New.Action
 import New.Agent
 import New.Rule
+import New.Actionable
 
 
 -- Steps through every rule and applies it to every agent at a time and returns
@@ -41,3 +42,4 @@ simulate' past (agent:future) (rule:rtl) rnd =
       future' = map (interpretMany actions) future
    in
      actions ++ simulate' (past' ++ [agent']) (future') (rule:rtl) (snd rnd')
+
