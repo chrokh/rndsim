@@ -4,6 +4,7 @@ module New.Action
   , interpretMany
   ) where
 
+import Data.Function
 import New.Agent
 
 
@@ -25,5 +26,5 @@ interpret action agent = agent -- TODO: Implement!
 -- producing new representations of the agent along the way.
 --
 interpretMany :: [Action] -> Agent -> Agent
-interpretMany actions agent = (foldl (.) id (map interpret actions)) agent
+interpretMany actions agent = foldl (&) agent (map interpret actions)
 
