@@ -10,12 +10,13 @@ import New.Agent
 import New.ProducerProps
 import New.Project
 import New.Drug
+import New.Fund
 
 
 data Action
 --------------------------------
   = Discovery      DiscoveryData
-  | Development    Uuid
+  | Development    DevelopmentData
   | Failure        Uuid
   | Termination    Uuid
 --------------------------------
@@ -38,6 +39,12 @@ data Action
 data DiscoveryData = DiscoveryData
   { discovery  :: Drug
   , discoverer :: Uuid
+  }
+
+data DevelopmentData = DevelopmentData
+  { target :: Uuid
+  , payer  :: Uuid
+  , cost   :: Mu
   }
 
 data TransactionData = TransactionData
@@ -66,31 +73,42 @@ interpretMany actions agent = foldl (&) agent (map interpret actions)
 class Actionable a where
   interpret :: Action -> a -> a
 
-
 instance Actionable Agent where
-  interpret action@(Development _) (Producer props) =
-    Producer props { projects = map (interpret action) (projects props) }
+  interpret action@(Development info) (Producer props) =
+    Producer props
+      { projects = map (interpret action) (projects props)
+      , New.ProducerProps.fund = interpret action (New.ProducerProps.fund props)
+      }
   interpret action@(Termination _) (Producer props) =
     Producer props { projects = map (interpret action) (projects props) }
   interpret _ a = a
 
 instance Actionable Project where
   interpret action@(Development _) prj =
-    prj { drug = interpret action (drug (prj)) }
+    prj
+      { drug = interpret action (drug prj)
+      , New.Project.fund = interpret action (New.Project.fund prj)
+      }
   interpret (Termination _) prj =
     prj { state = Terminated }
   interpret _ a = a
 
 instance Actionable Drug where
-  interpret (Development pid) drg
-    | (pid == New.Drug.uuid drg) = drg
-      { current   = nextCurrent drg
-      , remaining = nextRemaining drg
-      , completed = nextCompleted drg
-      }
+  interpret (Development props) drg
+    | (target props == New.Drug.uuid drg) =
+      drg { current   = nextCurrent drg
+          , remaining = nextRemaining drg
+          , completed = nextCompleted drg
+          }
     | otherwise = drg
   interpret _ a = a
 
 nextCurrent   x = current x -- TODO
 nextRemaining x = [] -- TODO
 nextCompleted x = [] -- TODO
+
+instance Actionable Fund where
+  interpret (Development info) fund
+    | (payer info == New.Fund.uuid fund) = withdraw (cost info) fund
+    | otherwise = fund
+  interpret _ x = x
