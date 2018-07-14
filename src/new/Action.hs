@@ -9,14 +9,44 @@ import New.Aliases
 import New.Agent
 import New.ProducerProps
 import New.Project
+import New.Product
 
 
 data Action
-  = Failure
-  | Termination Uuid
-  | Discovery
-  | AndSoForth
+--------------------------------
+  = Discovery      DiscoveryData
+  | Development    Uuid
+  | Failure        Uuid
+  | Termination    Uuid
+--------------------------------
+  | Production     Todo
+  | Consumption    Todo
+--------------------------------
+  | Spinoff        Todo
+--------------------------------
+  | OffersRequest  Todo
+  | Offer          Todo
+  | OfferAccept    Todo
+--------------------------------
+  | DemandRenewal  Todo
+--------------------------------
+  | FundRenewal    Todo
+--------------------------------
+  | Transaction    TransactionData
+--------------------------------
 
+data DiscoveryData = DiscoveryData
+  { discovery  :: Product
+  , discoverer :: Uuid
+  }
+
+data TransactionData = TransactionData
+  { buyer  :: Uuid
+  , seller :: Uuid
+  , price  :: Mu
+  }
+
+data Todo = Todo
 
 
 -- Multiple actions can be sequentially interpreted by the same agent,
