@@ -1,12 +1,18 @@
 module New.ProducerProps
-  ( ProducerProps (ProducerProps)
+  ( ProducerProps ( ProducerProps
+                  , uuid
+                  , projects
+                  )
   ) where
 
 import New.Aliases
+import New.Randomizer
+import New.Project
 
 
 data ProducerProps = ProducerProps
-  { id                        :: Int
+  { uuid                      :: Uuid
   , tags                      :: [Tag]
-  -- ...
+  , projects                  :: [Project]
   }
+
