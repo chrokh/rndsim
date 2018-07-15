@@ -16,9 +16,11 @@ import New.Actionable
 simulate
   :: [Agent]     -- Agents in the world
   -> [Rule]      -- Rules to apply
+  -> Int         -- Number of timesteps to simulate
   -> Randomizer  -- RNG
-  -> [Action]    -- Log of actions performed
-simulate = simulate' []
+  -> [Action]    -- Returns log of actions that were performed
+simulate agents rules steps rng =
+  simulate' [] agents (concat $ replicate steps rules) rng
 
 
 -- TODO: Might need to be tail-recursive for the sake of performance.
