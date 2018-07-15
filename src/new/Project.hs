@@ -4,16 +4,18 @@ module New.Project
             , drug
             , fund
             )
-  , ProjectState (Developing, Terminated) --- TODO TEMP!!!
+  , ProjectState ( Alive
+                 , Terminated
+                 , Failed
+                 )
   ) where
 
 
 import New.Aliases
-import New.Drug
-import New.Fund
+import New.Fund hiding (uuid)
+import New.Drug hiding (uuid)
 import New.Actionable
 import New.Action
-import New.Drug
 
 
 data Project = Project
@@ -24,15 +26,25 @@ data Project = Project
   --, ... TODO
   }
 
-data ProjectState = Developing | Terminated
+data ProjectState = Alive | Terminated | Failed
 
 
 instance Actionable Project where
+  --
   interpret action@(Development _) prj =
     prj
       { drug = interpret action (drug prj)
       , fund = interpret action (fund prj)
       }
-  interpret (Termination _) prj =
-    prj { state = Terminated }
-  interpret _ a = a
+  --
+  interpret (Termination pid) prj
+    | (uuid prj == pid) = prj { state = Terminated }
+    | otherwise         = prj
+  --
+  interpret (Failure pid) prj
+    | (uuid prj == pid) = prj { state = Failed }
+    | otherwise         = prj
+  --
+  interpret _ prj = prj
+
+
