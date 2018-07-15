@@ -13,7 +13,7 @@ module New.Action
            , FundRenewal
            , Transaction
            )
-  , DevelopmentData ( target
+  , DevelopmentInfo ( target
                     , payer
                     , cost
                     )
@@ -26,8 +26,8 @@ import New.Uuid
 
 data Action
 --------------------------------
-  = Discovery      DiscoveryData
-  | Development    DevelopmentData
+  = Discovery      DiscoveryInfo
+  | Development    DevelopmentInfo
   | Failure        Uuid
   | Termination    Uuid
 --------------------------------
@@ -44,23 +44,23 @@ data Action
 --------------------------------
   | FundRenewal    Todo
 --------------------------------
-  | Transaction    TransactionData
+  | Transaction    TransactionInfo
 --------------------------------
 
-data DiscoveryData = DiscoveryData
+data DiscoveryInfo = DiscoveryInfo
   { name       :: Uuid
   , cures      :: [Disease]
   , activities :: [Activity]
   , discoverer :: Uuid
   }
 
-data DevelopmentData = DevelopmentData
+data DevelopmentInfo = DevelopmentInfo
   { target :: Uuid
   , payer  :: Uuid
   , cost   :: Mu
   }
 
-data TransactionData = TransactionData
+data TransactionInfo = TransactionInfo
   { buyer  :: Uuid
   , seller :: Uuid
   , price  :: Mu
