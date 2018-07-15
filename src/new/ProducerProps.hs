@@ -1,6 +1,5 @@
 module New.ProducerProps
   ( ProducerProps ( ProducerProps
-                  , uuid
                   , projects
                   , fund
                   )
@@ -10,10 +9,11 @@ import New.Aliases
 import New.Randomizer
 import New.Project
 import New.Fund
+import New.Uuid
 
 
 data ProducerProps = ProducerProps
-  { uuid                      :: Uuid
+  { _uuid                     :: Uuid
   , tags                      :: [Tag]
   , projects                  :: [Project]
   , fund                      :: Fund

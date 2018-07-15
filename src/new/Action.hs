@@ -21,6 +21,7 @@ module New.Action
 
 import New.Aliases
 import New.Activity
+import New.Uuid
 
 
 data Action

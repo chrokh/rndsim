@@ -1,13 +1,11 @@
 module New.Aliases
-  ( Uuid
-  , Tag
+  ( Tag
   , Region
   , Mu
   , Disease
   , Probability
   ) where
 
-type Uuid        = Int
 type Tag         = String
 type Region      = Tag
 type Mu          = Double -- Monetary unit

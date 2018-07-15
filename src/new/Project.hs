@@ -11,18 +11,19 @@ module New.Project
   ) where
 
 
-import New.Aliases
 import New.Fund hiding (uuid)
 import New.Drug hiding (uuid)
 import New.Actionable
 import New.Action
+import New.Uuid
 
 
 data Project = Project
-  { uuid  :: Uuid
-  , state :: ProjectState
-  , drug  :: Drug
-  , fund  :: Fund
+  { _uuid  :: Uuid
+  , state  :: ProjectState
+  , drug   :: Drug
+  , fund   :: Fund
+  , temp   :: Int
   --, ... TODO
   }
 
@@ -48,3 +49,5 @@ instance Actionable Project where
   interpret _ prj = prj
 
 
+instance Identifiable Project where
+  uuid x = _uuid x

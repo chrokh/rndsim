@@ -1,6 +1,5 @@
 module New.Fund
   ( Fund ( Fund
-         , uuid
          , balance
          )
   , withdraw
@@ -9,10 +8,11 @@ module New.Fund
 import New.Aliases
 import New.Actionable
 import New.Action
+import New.Uuid
 
 
 data Fund = Fund
-  { uuid    :: Uuid
+  { _uuid   :: Uuid
   , balance :: Mu
   }
 
@@ -26,3 +26,7 @@ instance Actionable Fund where
     | (payer info == uuid fund) = withdraw (cost info) fund
     | otherwise = fund
   interpret _ x = x
+
+
+instance Identifiable Fund where
+  uuid x = _uuid x

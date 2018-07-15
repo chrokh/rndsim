@@ -1,6 +1,5 @@
 module New.Drug
-  ( Drug ( uuid
-         , cures
+  ( Drug ( cures
          , completed
          , remaining
          , current
@@ -11,16 +10,20 @@ import New.Aliases
 import New.Actionable
 import New.Activity
 import New.Action
+import New.Uuid
 
 
 data Drug = Drug
-  { uuid      :: Uuid
+  { _uuid     :: Uuid
   , cures     :: [Disease]
   , completed :: [Activity]
   , remaining :: [Activity]
   , current   :: Activity
   }
 
+
+instance Identifiable Drug where
+  uuid x = _uuid x
 
 
 instance Actionable Drug where

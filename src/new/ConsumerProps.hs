@@ -3,10 +3,11 @@ module New.ConsumerProps
   ) where
 
 import New.Aliases
+import New.Uuid
 
 
 data ConsumerProps = ConsumerProps
-  { id                        :: Uuid
+  { _uuid                     :: Uuid
   , region                    :: Region
   -- ...
   }
