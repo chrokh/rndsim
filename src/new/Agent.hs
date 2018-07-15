@@ -16,11 +16,10 @@ data Agent
 
 
 instance Actionable Agent where
-  interpret action@(Development info) (Producer props) =
+  --
+  interpret action (Producer props) =
     Producer props
       { projects = map (interpret action) (projects props)
       , fund = interpret action (fund props)
       }
-  interpret action@(Termination _) (Producer props) =
-    Producer props { projects = map (interpret action) (projects props) }
   interpret _ a = a
