@@ -7,9 +7,10 @@ module New.ProducerProps
 
 import New.Aliases
 import New.Randomizer
-import New.Project
+import New.Project (Project)
 import New.Fund
 import New.Uuid
+import New.Actionable
 
 
 data ProducerProps = ProducerProps
@@ -18,3 +19,10 @@ data ProducerProps = ProducerProps
   , projects                  :: [Project]
   , fund                      :: Fund
   }
+
+
+instance Actionable ProducerProps where
+  interpret action props = props
+    { projects = map (interpret action) (projects props)
+    , fund     = interpret action (fund props)
+    }
