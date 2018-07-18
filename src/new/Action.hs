@@ -22,6 +22,7 @@ module New.Action
 import New.Aliases
 import New.Activity
 import New.Uuid
+import New.Actions.ProductionInfo
 
 
 data Action
@@ -31,7 +32,7 @@ data Action
   | Failure        Uuid
   | Termination    Uuid
 --------------------------------
-  | Production     Todo
+  | Production     ProductionInfo
   | Consumption    Todo
 --------------------------------
   | Spinoff        Todo

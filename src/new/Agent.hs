@@ -16,11 +16,5 @@ data Agent
 
 
 instance Actionable Agent where
-
-  interpret action (Producer props) =
-    Producer props
-      { projects = map (interpret action) (projects props)
-      , fund = interpret action (fund props)
-      }
-
-  interpret _ a = a
+  interpret a (Producer x) = Producer (interpret a x)
+  interpret a (Consumer x) = Consumer (interpret a x)
