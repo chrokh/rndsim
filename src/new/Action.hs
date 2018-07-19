@@ -23,6 +23,7 @@ import New.Aliases
 import New.Activity
 import New.Uuid
 import New.Events.ProductionEvent
+import New.Events.ConsumptionEvent
 
 
 data Action
@@ -33,7 +34,7 @@ data Action
   | Termination    Uuid
 --------------------------------
   | Production     ProductionEvent
-  | Consumption    Todo
+  | Consumption    ConsumptionEvent
 --------------------------------
   | Spinoff        Todo
 --------------------------------
