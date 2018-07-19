@@ -1,30 +1,44 @@
 module Fund
   ( Fund ( Fund
-         , period
-         , size
-         , recipients
-         , remaining
+         , balance
          )
-  , replenish
   , withdraw
+  , deposit
   ) where
+
+import Aliases
+import Actionable
+import Action
+import Uuid
+import Events.ConsumptionEvent
 
 
 data Fund = Fund
-  { period :: Int
-  , size  :: Double
-  , recipients :: Int
-  , remaining :: Double
+  { _uuid   :: Uuid
+  , balance :: Mu
   }
-
-
-replenish :: Fund -> Int -> Fund
-replenish p t
-  | t `mod` (period p) == 0 = p { remaining = size p }
-  | otherwise = p
 
 withdraw :: Double -> Fund -> Fund
-withdraw amount fnd = fnd
-  { recipients = (recipients fnd) - 1
-  , remaining  = (remaining fnd) - amount
-  }
+withdraw x f = f { balance = (balance f) - x }
+
+deposit :: Double -> Fund -> Fund
+deposit x f = f { balance = (balance f) + x }
+
+
+instance Actionable Fund where
+
+  interpret (Consumption e) x
+    | (producerFund e == uuid x) =
+      deposit ((fromIntegral $ units e) * (price e)) x
+    | otherwise = x
+
+  interpret (Development e) x
+    | (payer e == uuid x) = withdraw (cost e) x
+    | otherwise = x
+
+  interpret _ x = x
+
+
+instance Identifiable Fund where
+  uuid x = _uuid x
+

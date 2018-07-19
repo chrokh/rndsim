@@ -1,16 +1,16 @@
-module New.ProducerProps
+module ProducerProps
   ( ProducerProps ( ProducerProps
                   , projects
                   , fund
                   )
   ) where
 
-import New.Aliases
-import New.Randomizer
-import New.Project (Project)
-import New.Fund
-import New.Uuid
-import New.Actionable
+import Aliases
+import Randomizer
+import Project (Project)
+import Fund
+import Uuid
+import Actionable
 
 
 data ProducerProps = ProducerProps

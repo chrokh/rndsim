@@ -1,4 +1,4 @@
-module New.Events.ProductionEvent
+module Events.ProductionEvent
   ( ProductionEvent ( project
                    , producer
                    , disease
@@ -6,8 +6,8 @@ module New.Events.ProductionEvent
                    )
   ) where
 
-import New.Aliases
-import New.Uuid
+import Aliases
+import Uuid
 
 
 -- While a drug can cure multiple diseases. We assume that the rate at which a

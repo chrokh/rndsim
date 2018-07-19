@@ -1,38 +1,20 @@
 module Agent
-  ( Agent (Agent, capital, skillset, criteria)
-  , Criteria (Criteria, threshold, discount)
-  , interpret
+  ( Agent ( Consumer
+          , Producer
+          )
   ) where
 
-import Skillset
-import Product
+import ConsumerProps
+import ProducerProps
+import Actionable
+import Action
 
-data Agent = Agent
-  { skillset :: Skillset
-  , criteria :: Criteria
-  , capital  :: Double
-  }
 
-data Criteria = Criteria
-  { threshold :: Double
-  , discount  :: Double
-  }
+data Agent
+  = Producer ProducerProps
+  | Consumer ConsumerProps
 
-data Project = Project
-  { prod :: Product
-  , step :: Int
-  }
 
-interpret :: Agent -> Product -> Product
-interpret a p = wrap (skillset a) p
-
-affords :: Agent -> Project -> Bool
-affords a d = stpCost (step d) (prod d) >= capital a
-
-develop :: Agent -> Project -> (Agent, Project)
-develop a p
-  | affords a p =
-    let a' = a { capital = (capital a - (stpFlow (step p) (prod p))) }
-        p' = p { step = step p + 1 }
-       in (a', p')
-  | otherwise = (a, p)
+instance Actionable Agent where
+  interpret a (Producer x) = Producer (interpret a x)
+  interpret a (Consumer x) = Consumer (interpret a x)

@@ -1,4 +1,4 @@
-module New.Drug
+module Drug
   ( Drug ( cures
          , completed
          , remaining
@@ -6,11 +6,11 @@ module New.Drug
          )
   ) where
 
-import New.Aliases
-import New.Actionable
-import New.Activity
-import New.Action
-import New.Uuid
+import Aliases
+import Actionable
+import Activity
+import Action
+import Uuid
 
 
 data Drug = Drug

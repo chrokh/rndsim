@@ -1,10 +1,10 @@
-module New.Rule
+module Rule
   ( Rule
   ) where
 
-import New.Randomizer
-import New.Agent
-import New.Action
+import Randomizer
+import Agent
+import Action
 
 
 type Rule = Agent -> Randomizer -> [Action]

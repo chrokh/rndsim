@@ -1,4 +1,4 @@
-module New.Project
+module Project
   ( Project ( Project
             , state
             , drug
@@ -11,11 +11,11 @@ module New.Project
   ) where
 
 
-import New.Fund hiding (uuid)
-import New.Drug hiding (uuid)
-import New.Actionable
-import New.Action
-import New.Uuid
+import Fund hiding (uuid)
+import Drug hiding (uuid)
+import Actionable
+import Action
+import Uuid
 
 
 data Project = Project

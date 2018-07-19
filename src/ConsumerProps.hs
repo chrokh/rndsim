@@ -1,17 +1,17 @@
-module New.ConsumerProps
+module ConsumerProps
   ( ConsumerProps ( ConsumerProps )
   ) where
 
 import Control.Lens
 import Data.Map
-import New.Aliases
-import New.Uuid
-import New.Actionable
-import New.Action
-import New.Events.ProductionEvent as ProductionEvent
-import New.Events.ConsumptionEvent as ConsumptionEvent
-import New.Project
-import New.Uuid
+import Aliases
+import Uuid
+import Actionable
+import Action
+import Events.ProductionEvent as ProductionEvent
+import Events.ConsumptionEvent as ConsumptionEvent
+import Project
+import Uuid
 
 
 data ConsumerProps = ConsumerProps

@@ -1,4 +1,4 @@
-module New.Uuid
+module Uuid
   ( Uuid
   , uuid
   , ideq

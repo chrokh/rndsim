@@ -1,13 +1,13 @@
-module New.Simulation
+module Simulation
   ( simulate
   ) where
 
-import New.Randomizer
-import New.Agent
-import New.Action
-import New.Agent
-import New.Rule
-import New.Actionable
+import Randomizer
+import Agent
+import Action
+import Agent
+import Rule
+import Actionable
 
 
 -- Steps through every rule and applies it to every agent at a time and returns

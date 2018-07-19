@@ -1,4 +1,4 @@
-module New.Aliases
+module Aliases
   ( Tag
   , Region
   , Mu
@@ -10,7 +10,7 @@ module New.Aliases
   , ProducerId
   ) where
 
-import New.Uuid
+import Uuid
 
 
 type Tag         = String

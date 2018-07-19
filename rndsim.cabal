@@ -48,8 +48,8 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules: Activity, ActivityDist, Agent, Algebra, Curve, CurveDist, Discoverable, Distribution, DSL, Evaluation, Expression, Intervention, Product, ProductDist, Random, Samplable, Shape, Skillset, Fund, New.Simulation
-  -- TODO: New.Simulation temporarily added!
+  exposed-modules: Simulation
+  --TODO
 
   -- Modules included in this library but not exported.
   -- other-modules:

@@ -1,4 +1,4 @@
-module New.Events.ConsumptionEvent
+module Events.ConsumptionEvent
   ( ConsumptionEvent ( consumer
                      , disease
                      , units
@@ -7,8 +7,8 @@ module New.Events.ConsumptionEvent
                      )
   ) where
 
-import New.Aliases
-import New.Uuid
+import Aliases
+import Uuid
 
 data ConsumptionEvent = ConsumptionEvent
   { consumer     :: Uuid

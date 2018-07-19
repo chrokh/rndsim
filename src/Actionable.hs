@@ -1,10 +1,10 @@
-module New.Actionable
+module Actionable
   ( Actionable ( interpret )
   , interpretMany
   ) where
 
 import Data.Function
-import New.Action
+import Action
 
 
 -- When an action is interpreted by an agent, a new agent is produced. This new

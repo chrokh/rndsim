@@ -1,4 +1,4 @@
-module New.Action
+module Action
   ( Action ( Discovery
            , Development
            , Failure
@@ -19,11 +19,11 @@ module New.Action
                     )
   ) where
 
-import New.Aliases
-import New.Activity
-import New.Uuid
-import New.Events.ProductionEvent
-import New.Events.ConsumptionEvent
+import Aliases
+import Activity
+import Uuid
+import Events.ProductionEvent
+import Events.ConsumptionEvent
 
 
 data Action

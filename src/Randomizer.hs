@@ -1,4 +1,4 @@
-module New.Randomizer
+module Randomizer
   ( Randomizer (Randomizer)
   , split
   ) where
