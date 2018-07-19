@@ -3,12 +3,14 @@ module New.Fund
          , balance
          )
   , withdraw
+  , deposit
   ) where
 
 import New.Aliases
 import New.Actionable
 import New.Action
 import New.Uuid
+import New.Events.ConsumptionEvent
 
 
 data Fund = Fund
@@ -17,16 +19,26 @@ data Fund = Fund
   }
 
 withdraw :: Double -> Fund -> Fund
-withdraw amnt = id -- TODO
+withdraw x f = f { balance = (balance f) - x }
 
+deposit :: Double -> Fund -> Fund
+deposit x f = f { balance = (balance f) + x }
 
 
 instance Actionable Fund where
-  interpret (Development event) fund
-    | (payer event == uuid fund) = withdraw (cost event) fund
-    | otherwise = fund
+
+  interpret (Consumption e) x
+    | (producerFund e == uuid x) =
+      deposit ((fromIntegral $ units e) * (price e)) x
+    | otherwise = x
+
+  interpret (Development e) x
+    | (payer e == uuid x) = withdraw (cost e) x
+    | otherwise = x
+
   interpret _ x = x
 
 
 instance Identifiable Fund where
   uuid x = _uuid x
+
