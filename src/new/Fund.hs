@@ -22,8 +22,8 @@ withdraw amnt = id -- TODO
 
 
 instance Actionable Fund where
-  interpret (Development info) fund
-    | (payer info == uuid fund) = withdraw (cost info) fund
+  interpret (Development event) fund
+    | (payer event == uuid fund) = withdraw (cost event) fund
     | otherwise = fund
   interpret _ x = x
 

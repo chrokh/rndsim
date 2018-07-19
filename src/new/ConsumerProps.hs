@@ -8,7 +8,7 @@ import New.Aliases
 import New.Uuid
 import New.Actionable
 import New.Action
-import New.Actions.ProductionInfo
+import New.Events.ProductionEvent
 import New.Project
 
 
@@ -29,11 +29,11 @@ data Supply = Supply
 
 
 instance Actionable ConsumerProps where
-  interpret action@(Production info) x =
-    let value = Supply { distributor = producer info
-                       , penetration = marketShare info }
-        key1  = disease info
-        key2  = project info
+  interpret action@(Production event) x =
+    let value = Supply { distributor = producer event
+                       , penetration = marketShare event }
+        key1  = disease event
+        key2  = project event
      in x { suppliers = set (ix key1.ix key2) value (suppliers x) }
   interpret _ x = x
 

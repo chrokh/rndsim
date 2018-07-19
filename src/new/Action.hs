@@ -13,7 +13,7 @@ module New.Action
            , FundRenewal
            , Transaction
            )
-  , DevelopmentInfo ( target
+  , DevelopmentEvent ( target
                     , payer
                     , cost
                     )
@@ -22,17 +22,17 @@ module New.Action
 import New.Aliases
 import New.Activity
 import New.Uuid
-import New.Actions.ProductionInfo
+import New.Events.ProductionEvent
 
 
 data Action
 --------------------------------
-  = Discovery      DiscoveryInfo
-  | Development    DevelopmentInfo
+  = Discovery      DiscoveryEvent
+  | Development    DevelopmentEvent
   | Failure        Uuid
   | Termination    Uuid
 --------------------------------
-  | Production     ProductionInfo
+  | Production     ProductionEvent
   | Consumption    Todo
 --------------------------------
   | Spinoff        Todo
@@ -45,23 +45,23 @@ data Action
 --------------------------------
   | FundRenewal    Todo
 --------------------------------
-  | Transaction    TransactionInfo
+  | Transaction    TransactionEvent
 --------------------------------
 
-data DiscoveryInfo = DiscoveryInfo
+data DiscoveryEvent = DiscoveryEvent
   { name       :: Uuid
   , cures      :: [Disease]
   , activities :: [Activity]
   , discoverer :: Uuid
   }
 
-data DevelopmentInfo = DevelopmentInfo
+data DevelopmentEvent = DevelopmentEvent
   { target :: Uuid
   , payer  :: Uuid
   , cost   :: Mu
   }
 
-data TransactionInfo = TransactionInfo
+data TransactionEvent = TransactionEvent
   { buyer  :: Uuid
   , seller :: Uuid
   , price  :: Mu
