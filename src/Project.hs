@@ -23,8 +23,6 @@ data Project = Project
   , state  :: ProjectState
   , drug   :: Drug
   , fund   :: Fund
-  , temp   :: Int
-  --, ... TODO
   }
 
 data ProjectState = Alive | Terminated | Failed deriving (Eq)

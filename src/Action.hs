@@ -13,10 +13,11 @@ module Action
            , FundRenewal
            , Transaction
            )
-  , DevelopmentEvent ( target
-                    , payer
-                    , cost
-                    )
+  , DevelopmentEvent ( DevelopmentEvent
+                     , target
+                     , payer
+                     , cost
+                     )
   ) where
 
 import Aliases

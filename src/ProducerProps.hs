@@ -7,7 +7,6 @@ module ProducerProps
   ) where
 
 import Aliases
-import Randomizer
 import Project (Project)
 import Fund
 import Uuid

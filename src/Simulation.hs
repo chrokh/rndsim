@@ -2,7 +2,7 @@ module Simulation
   ( simulate
   ) where
 
-import Randomizer
+import System.Random
 import Agent
 import Action
 import Agent
@@ -17,7 +17,7 @@ simulate
   :: [Agent]     -- Agents in the world
   -> [Rule]      -- Rules to apply
   -> Int         -- Number of timesteps to simulate
-  -> Randomizer  -- RNG
+  -> StdGen      -- RNG
   -> [Action]    -- Returns log of actions that were performed
 simulate agents rules steps rng =
   simulate' [] agents (concat $ replicate steps rules) rng
@@ -30,7 +30,7 @@ simulate'
   :: [Agent]    -- Agents processed
   -> [Agent]    -- Agents remaining
   -> [Rule]     -- Rules remaining
-  -> Randomizer -- RNG
+  -> StdGen     -- RNG
   -> [Action]   -- Log of actions performed
 simulate' _ [] [] _ = []
 simulate' _ _  [] _ = []

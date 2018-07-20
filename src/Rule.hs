@@ -1,8 +1,10 @@
 module Rule
   ( Rule
+  , termination
+  , development
   ) where
 
-import Randomizer
+import System.Random
 import Agent
 import Action
 import Project
@@ -11,7 +13,7 @@ import Uuid
 
 
 
-type Rule = Agent -> Randomizer -> [Action]
+type Rule = Agent -> StdGen -> [Action]
 
 
 -- TODO: Many rules missing
@@ -24,3 +26,19 @@ termination (Producer props) rnd =
       projs = (filter unacceptable) . (filter isTerminatable) $ projects props
       actions = map (\p -> Termination (uuid p)) projs
    in actions
+
+-- TODO: This is an incorrect test-implementation
+development :: Rule
+development (Consumer props) rng = []
+development (Producer props) rng =
+  -- TODO:
+  --  If in development
+  --  Find out cost
+  --  If affords
+  map makeDevelopmentAction (projects props)
+
+makeDevelopmentAction p =
+  (Development DevelopmentEvent
+    { target = uuid p
+    , payer  = uuid (Project.fund p)
+    , cost   = 100 })
