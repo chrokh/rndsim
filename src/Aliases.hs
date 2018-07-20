@@ -8,6 +8,7 @@ module Aliases
   , MarketShare
   , ProjectId
   , ProducerId
+  , Utility
   ) where
 
 import Uuid
@@ -20,6 +21,7 @@ type Disease     = String
 type Probability = Double
 type Percentage  = Double
 type MarketShare = Percentage
+type Utility     = Double
 
 -- Semantically useful identifier aliases
 type ProjectId   = Uuid

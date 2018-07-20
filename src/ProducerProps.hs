@@ -2,6 +2,7 @@ module ProducerProps
   ( ProducerProps ( ProducerProps
                   , projects
                   , fund
+                  , utilityFunction
                   )
   ) where
 
@@ -18,6 +19,7 @@ data ProducerProps = ProducerProps
   , tags                      :: [Tag]
   , projects                  :: [Project]
   , fund                      :: Fund
+  , utilityFunction           :: Project -> Utility
   }
 
 

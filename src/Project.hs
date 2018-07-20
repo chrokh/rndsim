@@ -27,7 +27,7 @@ data Project = Project
   --, ... TODO
   }
 
-data ProjectState = Alive | Terminated | Failed
+data ProjectState = Alive | Terminated | Failed deriving (Eq)
 
 
 instance Actionable Project where
